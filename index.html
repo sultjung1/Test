@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>비스마야 야구 라인업 대시보드</title>
+
+  <!-- CSS는 화면의 디자인과 배치를 담당합니다. -->
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">GitHub Pages 교육용 테스트 페이지</p>
+        <h1>비스마야 야구 라인업 대시보드</h1>
+        <p class="subtitle">이번 주 출전 가능 선수를 선택하고 포지션과 타순을 확정하세요</p>
+      </div>
+      <div class="hero-actions">
+        <button id="loadSampleBtn" class="btn btn-secondary">샘플 데이터 불러오기</button>
+        <button id="resetBtn" class="btn btn-danger">라인업 초기화</button>
+      </div>
+    </header>
+
+    <section class="top-grid">
+      <article class="card weather-card">
+        <div class="card-title-row">
+          <h2>비스마야 금요일 오전 날씨</h2>
+          <span class="badge badge-weather">예측</span>
+        </div>
+        <div id="weatherBox" class="weather-box"></div>
+        <p class="help-text">
+          현재는 교육용 샘플 데이터입니다. 실제 API 연동 시 app.js의 weatherData 부분을 교체하면 됩니다.
+        </p>
+      </article>
+
+      <article class="card notice-card">
+        <h2>사용 방법</h2>
+        <ol>
+          <li>아래 선수 설정에서 팀을 선택합니다.</li>
+          <li>이번 주 출전 가능한 선수를 체크합니다.</li>
+          <li>각 선수의 타순과 포지션을 선택합니다.</li>
+          <li>라인업 확정 버튼을 누르면 대시보드에 반영됩니다.</li>
+        </ol>
+      </article>
+    </section>
+
+    <main class="dashboard-grid">
+      <section class="card lineup-card">
+        <div class="card-title-row">
+          <h2>우리 팀 라인업</h2>
+          <span id="homeCount" class="badge">0명</span>
+        </div>
+        <div id="homeLineup" class="lineup-list empty-state">아직 확정된 라인업이 없습니다.</div>
+      </section>
+
+      <section class="card field-card">
+        <div class="card-title-row">
+          <h2>야구장 포지션 배치</h2>
+          <span class="badge badge-home">우리 팀 기준</span>
+        </div>
+
+        <div class="baseball-field" aria-label="야구장 포지션 배치">
+          <div class="outfield"></div>
+          <div class="infield"></div>
+          <div class="diamond"></div>
+          <div class="base base-home">홈</div>
+          <div class="base base-first">1루</div>
+          <div class="base base-second">2루</div>
+          <div class="base base-third">3루</div>
+
+          <div id="pos-투수" class="position-marker pitcher">투수<br><strong>-</strong></div>
+          <div id="pos-포수" class="position-marker catcher">포수<br><strong>-</strong></div>
+          <div id="pos-1루수" class="position-marker first">1루수<br><strong>-</strong></div>
+          <div id="pos-2루수" class="position-marker second">2루수<br><strong>-</strong></div>
+          <div id="pos-3루수" class="position-marker third">3루수<br><strong>-</strong></div>
+          <div id="pos-유격수" class="position-marker shortstop">유격수<br><strong>-</strong></div>
+          <div id="pos-좌익수" class="position-marker leftfield">좌익수<br><strong>-</strong></div>
+          <div id="pos-중견수" class="position-marker centerfield">중견수<br><strong>-</strong></div>
+          <div id="pos-우익수" class="position-marker rightfield">우익수<br><strong>-</strong></div>
+          <div id="pos-지명타자" class="position-marker dh">DH<br><strong>-</strong></div>
+        </div>
+      </section>
+
+      <section class="card lineup-card">
+        <div class="card-title-row">
+          <h2>상대 팀 라인업</h2>
+          <span id="awayCount" class="badge">0명</span>
+        </div>
+        <div id="awayLineup" class="lineup-list empty-state">아직 확정된 라인업이 없습니다.</div>
+      </section>
+    </main>
+
+    <section class="card setup-card">
+      <div class="setup-header">
+        <div>
+          <h2>선수 선택 및 라인업 설정</h2>
+          <p class="help-text">체크된 선수만 이번 주 출전 가능 선수로 간주됩니다.</p>
+        </div>
+        <div class="team-tabs" role="tablist" aria-label="팀 선택">
+          <button id="homeTab" class="tab active" data-team="home">우리 팀</button>
+          <button id="awayTab" class="tab" data-team="away">상대 팀</button>
+        </div>
+      </div>
+
+      <div id="messageBox" class="message hidden"></div>
+
+      <div class="table-wrap">
+        <table class="player-table">
+          <thead>
+            <tr>
+              <th>출전</th>
+              <th>선수명</th>
+              <th>상태</th>
+              <th>기본 포지션</th>
+              <th>타순</th>
+              <th>이번 주 포지션</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="playerTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="setup-actions">
+        <button id="confirmBtn" class="btn btn-primary">라인업 확정</button>
+        <p class="help-text">
+          같은 타순과 같은 포지션은 중복 선택할 수 없습니다. 단, 후보는 여러 명 가능합니다.
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      GitHub Pages 교육용 테스트 페이지 · HTML은 구조, CSS는 디자인, JavaScript는 동작을 담당합니다.
+    </footer>
+  </div>
+
+  <!-- JavaScript는 데이터 처리와 버튼 동작을 담당합니다. -->
+  <script src="./app.js"></script>
+</body>
+</html>
