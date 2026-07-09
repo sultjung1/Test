@@ -55,9 +55,15 @@
       </section>
 
       <section class="card field-card">
-        <div class="card-title-row">
-          <h2>야구장 포지션 배치</h2>
-          <span class="badge badge-home">우리 팀 기준</span>
+        <div class="field-header">
+          <div>
+            <h2>야구장 포지션 배치</h2>
+            <p id="fieldTeamText" class="help-text">현재 우리 팀 기준으로 표시 중입니다.</p>
+          </div>
+          <div class="field-toggle" aria-label="야구장 표시 팀 선택">
+            <button id="fieldHomeBtn" class="field-toggle-btn active" data-field-team="home">우리 팀 기준</button>
+            <button id="fieldAwayBtn" class="field-toggle-btn" data-field-team="away">상대 팀 기준</button>
+          </div>
         </div>
 
         <div class="baseball-field" aria-label="야구장 포지션 배치">

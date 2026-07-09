@@ -61,6 +61,11 @@ const samplePlayers = [
 
 let players = [];
 let currentTeam = "home";
+
+// 야구장 중앙 그래픽에 표시할 팀입니다.
+// 기본값은 우리 팀이며, 버튼을 누르면 상대 팀 기준으로도 볼 수 있습니다.
+let fieldViewTeam = "home";
+
 let confirmedLineups = {
   home: [],
   away: []
@@ -100,6 +105,15 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmLineup();
   });
 
+  document.querySelectorAll(".field-toggle-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      fieldViewTeam = button.dataset.fieldTeam;
+      renderFieldToggle();
+      renderField();
+      showMessage(`야구장 표시 기준을 ${teamLabels[fieldViewTeam]}으로 변경했습니다.`, "info");
+    });
+  });
+
   document.querySelectorAll(".tab").forEach((button) => {
     button.addEventListener("click", () => {
       currentTeam = button.dataset.team;
@@ -126,6 +140,7 @@ function loadSampleData() {
 
   renderWeather();
   renderTabs();
+  renderFieldToggle();
   renderPlayerTable();
   renderLineups();
   renderField();
@@ -144,6 +159,7 @@ function resetLineups() {
     away: []
   };
 
+  renderFieldToggle();
   renderPlayerTable();
   renderLineups();
   renderField();
@@ -176,6 +192,17 @@ function renderTabs() {
   document.querySelectorAll(".tab").forEach((button) => {
     button.classList.toggle("active", button.dataset.team === currentTeam);
   });
+}
+
+function renderFieldToggle() {
+  document.querySelectorAll(".field-toggle-btn").forEach((button) => {
+    button.classList.toggle("active", button.dataset.fieldTeam === fieldViewTeam);
+  });
+
+  const fieldTeamText = document.getElementById("fieldTeamText");
+  if (fieldTeamText) {
+    fieldTeamText.textContent = `현재 ${teamLabels[fieldViewTeam]} 기준으로 표시 중입니다.`;
+  }
 }
 
 function renderPlayerTable() {
@@ -403,12 +430,12 @@ function renderTeamLineup(team, containerId, countId) {
 }
 
 function renderField() {
-  // 야구장 중앙 그래픽은 우리 팀 기준으로만 표시합니다.
-  const homeLineup = confirmedLineups.home || [];
+  // 야구장 중앙 그래픽은 fieldViewTeam 값에 따라 우리 팀 또는 상대 팀 기준으로 표시합니다.
+  const lineup = confirmedLineups[fieldViewTeam] || [];
 
   Object.entries(fieldPositionIds).forEach(([position, elementId]) => {
     const element = document.getElementById(elementId);
-    const player = homeLineup.find((item) => item.selectedPosition === position);
+    const player = lineup.find((item) => item.selectedPosition === position);
     const shortLabel = position === "지명타자" ? "DH" : position;
 
     element.innerHTML = `${shortLabel}<br><strong>${player ? player.name : "-"}</strong>`;
