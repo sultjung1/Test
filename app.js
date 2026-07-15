@@ -6,14 +6,100 @@
 // 실제 API 연동 시 이 부분을 교체하면 됩니다.
 // GitHub Pages는 정적 사이트이므로 API 키가 필요한 서비스는 키 노출 문제가 생길 수 있습니다.
 // 교육용 1차 버전에서는 샘플 날씨 데이터를 사용합니다.
-const weatherData = {
-  location: "Bismayah, Iraq",
-  time: "금요일 오전",
-  condition: "맑음",
-  temperature: "38℃",
-  rainChance: "5%",
-  wind: "약한 바람"
+let weatherData = {
+  location: "비스마야",
+  time: "날씨 불러오는 중",
+  condition: "-",
+  temperature: "-",
+  rainChance: "-",
+  wind: "-"
 };
+
+const weatherCodeText = {
+  0: "맑음",
+  1: "대체로 맑음",
+  2: "부분적으로 흐림",
+  3: "흐림",
+  45: "안개",
+  48: "서리 안개",
+  51: "약한 이슬비",
+  53: "이슬비",
+  55: "강한 이슬비",
+  61: "약한 비",
+  63: "비",
+  65: "강한 비",
+  80: "소나기",
+  81: "소나기",
+  82: "강한 소나기",
+  95: "뇌우"
+};
+
+async function loadWeather() {
+  // 아래 좌표는 예시입니다.
+  // 실제 야구장 위치의 위도·경도로 바꾸는 것이 가장 정확합니다.
+  const latitude = 33.14;
+  const longitude = 44.55;
+
+  const url =
+    `https://api.open-meteo.com/v1/forecast` +
+    `?latitude=${latitude}` +
+    `&longitude=${longitude}` +
+    `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m` +
+    `&timezone=Asia%2FBaghdad` +
+    `&forecast_days=16`;
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`날씨 API 오류: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // 예보자료 중 가장 가까운 금요일 오전 9시를 찾습니다.
+    const fridayIndex = data.hourly.time.findIndex((time) => {
+      const [date, hour] = time.split("T");
+      const day = new Date(`${date}T00:00:00Z`).getUTCDay();
+
+      return day === 5 && hour === "09:00";
+    });
+
+    if (fridayIndex === -1) {
+      throw new Error("금요일 오전 예보를 찾지 못했습니다.");
+    }
+
+    const forecastTime = data.hourly.time[fridayIndex];
+    const weatherCode = data.hourly.weather_code[fridayIndex];
+
+    weatherData = {
+      location: "Bismayah, Iraq",
+      time: `${forecastTime.substring(5, 10).replace("-", "/")} 금요일 09:00`,
+      condition: weatherCodeText[weatherCode] || "확인 필요",
+      temperature:
+        `${Math.round(data.hourly.temperature_2m[fridayIndex])}℃`,
+      rainChance:
+        `${data.hourly.precipitation_probability[fridayIndex] ?? 0}%`,
+      wind:
+        `${Math.round(data.hourly.wind_speed_10m[fridayIndex])}km/h`
+    };
+
+    renderWeather();
+  } catch (error) {
+    console.error(error);
+
+    weatherData = {
+      location: "비스마야",
+      time: "조회 실패",
+      condition: "날씨 정보를 불러오지 못했습니다.",
+      temperature: "-",
+      rainChance: "-",
+      wind: "-"
+    };
+
+    renderWeather();
+  }
+}
 
 // 포지션 목록을 수정하려면 이 배열을 바꾸면 됩니다.
 const positions = [
