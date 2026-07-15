@@ -177,6 +177,7 @@ const fieldPositionIds = {
 
 document.addEventListener("DOMContentLoaded", () => {
   loadSampleData();
+  loadWeather();
 
   document.getElementById("loadSampleBtn").addEventListener("click", () => {
     loadSampleData();
